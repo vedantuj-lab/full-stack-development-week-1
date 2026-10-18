@@ -10,33 +10,99 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiTasksRouteImport } from './routes/api/tasks'
+import { Route as ApiTasksIdRouteImport } from './routes/api/tasks.$id'
+import { Route as ApiTasksIdCompleteRouteImport } from './routes/api/tasks.$id.complete'
+import { Route as ApiTasksIdReopenRouteImport } from './routes/api/tasks.$id.reopen'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksRoute = ApiTasksRouteImport.update({
+  id: '/api/tasks',
+  path: '/api/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksIdRoute = ApiTasksIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiTasksRoute,
+} as any)
+const ApiTasksIdCompleteRoute = ApiTasksIdCompleteRouteImport.update({
+  id: '/complete',
+  path: '/complete',
+  getParentRoute: () => ApiTasksIdRoute,
+} as any)
+const ApiTasksIdReopenRoute = ApiTasksIdReopenRouteImport.update({
+  id: '/reopen',
+  path: '/reopen',
+  getParentRoute: () => ApiTasksIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/tasks': typeof ApiTasksRouteWithChildren
+  '/api/tasks/$id': typeof ApiTasksIdRouteWithChildren
+  '/api/tasks/$id/complete': typeof ApiTasksIdCompleteRoute
+  '/api/tasks/$id/reopen': typeof ApiTasksIdReopenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/tasks': typeof ApiTasksRouteWithChildren
+  '/api/tasks/$id': typeof ApiTasksIdRouteWithChildren
+  '/api/tasks/$id/complete': typeof ApiTasksIdCompleteRoute
+  '/api/tasks/$id/reopen': typeof ApiTasksIdReopenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/tasks': typeof ApiTasksRouteWithChildren
+  '/api/tasks/$id': typeof ApiTasksIdRouteWithChildren
+  '/api/tasks/$id/complete': typeof ApiTasksIdCompleteRoute
+  '/api/tasks/$id/reopen': typeof ApiTasksIdReopenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/health'
+    | '/api/tasks'
+    | '/api/tasks/$id'
+    | '/api/tasks/$id/complete'
+    | '/api/tasks/$id/reopen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/health'
+    | '/api/tasks'
+    | '/api/tasks/$id'
+    | '/api/tasks/$id/complete'
+    | '/api/tasks/$id/reopen'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/health'
+    | '/api/tasks'
+    | '/api/tasks/$id'
+    | '/api/tasks/$id/complete'
+    | '/api/tasks/$id/reopen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiHealthRoute: typeof ApiHealthRoute
+  ApiTasksRoute: typeof ApiTasksRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +114,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks': {
+      id: '/api/tasks'
+      path: '/api/tasks'
+      fullPath: '/api/tasks'
+      preLoaderRoute: typeof ApiTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/$id': {
+      id: '/api/tasks/$id'
+      path: '/$id'
+      fullPath: '/api/tasks/$id'
+      preLoaderRoute: typeof ApiTasksIdRouteImport
+      parentRoute: typeof ApiTasksRoute
+    }
+    '/api/tasks/$id/complete': {
+      id: '/api/tasks/$id/complete'
+      path: '/complete'
+      fullPath: '/api/tasks/$id/complete'
+      preLoaderRoute: typeof ApiTasksIdCompleteRouteImport
+      parentRoute: typeof ApiTasksIdRoute
+    }
+    '/api/tasks/$id/reopen': {
+      id: '/api/tasks/$id/reopen'
+      path: '/reopen'
+      fullPath: '/api/tasks/$id/reopen'
+      preLoaderRoute: typeof ApiTasksIdReopenRouteImport
+      parentRoute: typeof ApiTasksIdRoute
+    }
   }
 }
 
+interface ApiTasksIdRouteChildren {
+  ApiTasksIdCompleteRoute: typeof ApiTasksIdCompleteRoute
+  ApiTasksIdReopenRoute: typeof ApiTasksIdReopenRoute
+}
+
+const ApiTasksIdRouteChildren: ApiTasksIdRouteChildren = {
+  ApiTasksIdCompleteRoute: ApiTasksIdCompleteRoute,
+  ApiTasksIdReopenRoute: ApiTasksIdReopenRoute,
+}
+
+const ApiTasksIdRouteWithChildren = ApiTasksIdRoute._addFileChildren(
+  ApiTasksIdRouteChildren,
+)
+
+interface ApiTasksRouteChildren {
+  ApiTasksIdRoute: typeof ApiTasksIdRouteWithChildren
+}
+
+const ApiTasksRouteChildren: ApiTasksRouteChildren = {
+  ApiTasksIdRoute: ApiTasksIdRouteWithChildren,
+}
+
+const ApiTasksRouteWithChildren = ApiTasksRoute._addFileChildren(
+  ApiTasksRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiHealthRoute: ApiHealthRoute,
+  ApiTasksRoute: ApiTasksRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
